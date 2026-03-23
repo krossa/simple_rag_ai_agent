@@ -4,8 +4,9 @@ from app.services.embedder import get_embeddings
 from app.services.vector_store import store_embeddings
 from app.services.utils import get_path, get_text_from_pdf
 
-def upload_pdf():
-    file_name = input("Enter PDF name from input folder: ").strip()
+def upload_pdf(file_name=None):
+    if file_name is None:
+        file_name = input("Enter PDF name from input folder: ").strip()
 
     if not file_name.lower().endswith(".pdf"):
         file_name += ".pdf"
