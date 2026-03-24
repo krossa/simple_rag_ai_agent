@@ -3,12 +3,20 @@ pypdf
 sentence_transformers
 chromadb
 openai-whisper ffmpeg-python
+openai
 
 You also need to install ffmpeg on your machine     
 
 ## start up
-run python -m app.main
+set OpenAI API key
+$env:OPENAI_API_KEY="your_key"
+
+run
+python -m app.main
 in src/
 
-Files for upload should be placed in input/ folder you just need to provide file name.
-Provided materials are already uploded to src/chroma_db
+The data source is located in the input/articles folder, containing articles about AI. All articles can be loaded into RAG as a single action
+4) Load Data
+It is possible to add more PDF or video files from the input folder (like in RAG project)
+1) Upload PDF
+2) Upload Video

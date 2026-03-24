@@ -1,17 +1,23 @@
-def run_agent(question: str):
-    # 1. Reason: decide what to do
-    decision = decide_action(question)
+from app.agent.action_resolver import decide_action
+from app.agent.question_resolver import generate_answer
+from app.services.vector_store import query_rag
+from app.agent.reflection_resolver import reflect as reflect_on_answer
 
-    # 2. Act: call tool
-    if decision == "search":
-        context = query_similar_chunks(question)
+def run_agent(question: str):
+    action = decide_action(question)
+    reflection = "not applicable"
+
+    if action == "search":
+        context = query_rag(question)
+        answer = generate_answer(question, context["documents"])
+        reflection = reflect_on_answer(question, answer, context)
+
     else:
         context = []
+        answer = generate_answer(question)
 
-    # 3. Generate answer
-    answer = generate_answer(question, context)
-
-    # 4. Reflect
-    reflection = reflect_on_answer(question, answer, context)
-
-    return answer, reflection
+    return {
+        "answer": answer,
+        "reflection":  reflection,
+        "action": action
+    }

@@ -1,8 +1,14 @@
-from app.services.vector_store import query
+from unittest import result
+
+from app.services.vector_store import query_rag
+from app.agent.agent import run_agent
 
 def ask_question():
     question = input("Ask your question: ").strip()
-    result = query(question)
 
-    for doc, meta in zip(result["documents"], result["metadatas"]):
-        print(f"[{meta['source']}] {doc}")
+    result = run_agent(question)
+    
+    print("\nAction:", result["action"])
+    print("Reflection:", result["reflection"])
+    print("\nAnswer:\n", result["answer"])
+    

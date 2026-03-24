@@ -41,7 +41,7 @@ def store_embeddings(
         metadatas=metadata
     )
 
-def query(query: str, n_results: int = 3) -> List[str]:
+def query_rag(query: str, n_results: int = 3) -> List[str]:
     collection = get_collection()
 
     query_embedding = get_embeddings([query])[0].tolist()
