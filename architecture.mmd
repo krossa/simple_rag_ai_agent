@@ -1,0 +1,25 @@
+## Pipeline Overview
+
+The application exposes two main pipelines through the CLI menu:
+
+### Ingestion Pipeline (Upload PDF / Video / Load Data)
+
+┌──────────┐    ┌───────────┐    ┌──────────┐    ┌─────────────┐    ┌──────────────┐
+│  Source   │ →  │  Extract  │ →  │  Chunk   │ →  │   Embed     │ →  │    Store     │
+│  File     │    │  Text     │    │  Text    │    │   Chunks    │    │  in ChromaDB │
+└──────────┘    └───────────┘    └──────────┘    └─────────────┘    └──────────────┘
+  PDF/Video      pypdf /          chunker.py      embedder.py        vector_store.py
+                 Whisper+FFmpeg
+
+### Question-Answering Pipeline (Ask Question)
+
+┌──────────┐    ┌───────────────┐    ┌──────────────┐    ┌────────────┐    ┌────────────┐
+│ Question │ →  │ Decide Action │ →  │ Retrieve     │ →  │ Generate   │ →  │ Reflect    │
+│ (user)   │    │ search/answer │    │ Context      │    │ Answer     │    │ on Answer  │
+└──────────┘    └───────────────┘    └──────────────┘    └────────────┘    └────────────┘
+                 action_resolver     vector_store.py      question_        reflection_
+                 (LLM)               query_rag()          resolver (LLM)   resolver (LLM)
+
+If the action resolver decides **"answer"**, the retrieval and reflection steps are
+skipped and the LLM answers directly from its own knowledge.
+
