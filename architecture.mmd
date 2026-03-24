@@ -4,27 +4,30 @@ The application exposes two main pipelines through the CLI menu:
 
 ### Ingestion Pipeline (Upload PDF / Video / Load Data)
 
+```mermaid
+flowchart LR
+    Source[Source File\n(PDF / Video)]
+    Extract[Extract Text\n(pypdf / Whisper + FFmpeg)]
+    Chunk[Chunk Text\n(chunker.py)]
+    Embed[Embed Chunks\n(embedder.py)]
+    Store[Store in ChromaDB\n(vector_store.py)]
+
+    Source --> Extract --> Chunk --> Embed --> Store
 ```
-┌──────────┐    ┌───────────┐    ┌──────────┐    ┌─────────────┐    ┌──────────────┐
-│  Source   │ →  │  Extract  │ →  │  Chunk   │ →  │   Embed     │ →  │    Store     │
-│  File     │    │  Text     │    │  Text    │    │   Chunks    │    │  in ChromaDB │
-└──────────┘    └───────────┘    └──────────┘    └─────────────┘    └──────────────┘
-  PDF/Video      pypdf /          chunker.py      embedder.py        vector_store.py
-                 Whisper+FFmpeg
-```
+
+---
 
 ### Question-Answering Pipeline (Ask Question)
 
-```
-┌──────────┐    ┌───────────────┐    ┌──────────────┐    ┌────────────┐    ┌────────────┐
-│ Question │ →  │ Decide Action │ →  │ Retrieve     │ →  │ Generate   │ →  │ Reflect    │
-│ (user)   │    │ search/answer │    │ Context      │    │ Answer     │    │ on Answer  │
-└──────────┘    └───────────────┘    └──────────────┘    └────────────┘    └────────────┘
-                 action_resolver     vector_store.py      question_        reflection_
-                 (LLM)               query_rag()          resolver (LLM)   resolver (LLM)
-```
+```mermaid
+flowchart LR
+    Question[User Question]
+    Decide[Decide Action\n(action_resolver - LLM)]
+    Retrieve[Retrieve Context\n(vector_store.py)]
+    Generate[Generate Answer\n(question_resolver - LLM)]
+    Reflect[Reflect on Answer\n(reflection_resolver - LLM)]
 
-If the action resolver decides **"answer"**, the retrieval and reflection steps are
-skipped and the LLM answers directly from its own knowledge.
-
----
+    Question --> Decide
+    Decide -->|search| Retrieve --> Generate --> Reflect
+    Decide -->|answer| Generate
+```
