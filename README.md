@@ -15,8 +15,8 @@ run
 python -m app.main
 in src/
 
-The data source is located in the input/articles folder, containing articles about AI. All articles can be loaded into RAG as a single action
-4) Load Data
-It is possible to add more PDF or video files from the input folder (like in RAG project)
-1) Upload PDF
-2) Upload Video
+The data source is located in the input/articles folder, containing articles about AI. All articles can be loaded into RAG as a single action  
+(4) Load Data  
+It is possible to add more PDF or video files from the input folder (like in RAG project)  
+(1) Upload PDF  
+(2) Upload Video  
