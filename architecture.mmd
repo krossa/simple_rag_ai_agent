@@ -1,33 +1,98 @@
-## Pipeline Overview
+flowchart TB
 
-The application exposes two main pipelines through the CLI menu:
+%% =========================
+%% USER INTERFACE LAYER
+%% =========================
+subgraph UI["User Interface"]
+    User[User]
+    Menu[Console Menu]
+end
 
-### Ingestion Pipeline (Upload PDF / Video / Load Data)
+User --> Menu
 
-```mermaid
-flowchart LR
-    Source[Source File\n(PDF / Video)]
-    Extract[Extract Text\n(pypdf / Whisper + FFmpeg)]
-    Chunk[Chunk Text\n(chunker.py)]
-    Embed[Embed Chunks\n(embedder.py)]
-    Store[Store in ChromaDB\n(vector_store.py)]
+%% =========================
+%% APPLICATION LAYER
+%% =========================
+subgraph APP["Application Layer"]
+    PDFHandler[PDF Handler]
+    VideoHandler[Video Handler]
+    QAHandler[Q&A Handler]
+    Agent[Agent Controller]
+end
 
-    Source --> Extract --> Chunk --> Embed --> Store
-```
+Menu --> PDFHandler
+Menu --> VideoHandler
+Menu --> QAHandler
+Menu --> Agent
 
----
+%% =========================
+%% PROCESSING LAYER
+%% =========================
+subgraph PROCESSING["Processing Layer"]
+    PDFText[Extract PDF Text]
+    Whisper[Whisper Transcription]
+    Chunker[Chunking Service]
+    Embedder[Embedding Service]
+end
 
-### Question-Answering Pipeline (Ask Question)
+PDFHandler --> PDFText --> Chunker
+VideoHandler --> Whisper --> Chunker
+Chunker --> Embedder
 
-```mermaid
-flowchart LR
-    Question[User Question]
-    Decide[Decide Action\n(action_resolver - LLM)]
-    Retrieve[Retrieve Context\n(vector_store.py)]
-    Generate[Generate Answer\n(question_resolver - LLM)]
-    Reflect[Reflect on Answer\n(reflection_resolver - LLM)]
+%% =========================
+%% DATA LAYER
+%% =========================
+subgraph DATA["Data Layer"]
+    VectorStore[Vector Store Service]
+    ChromaDB[(ChromaDB)]
+end
 
-    Question --> Decide
-    Decide -->|search| Retrieve --> Generate --> Reflect
-    Decide -->|answer| Generate
-```
+Embedder --> VectorStore --> ChromaDB
+
+%% =========================
+%% RETRIEVAL (RAG)
+%% =========================
+subgraph RAG["RAG Pipeline"]
+    Query[Query Service]
+    RetrievedChunks[Retrieved Chunks]
+end
+
+QAHandler --> Query
+Query --> ChromaDB
+ChromaDB --> RetrievedChunks
+
+%% =========================
+%% AGENTIC LAYER
+%% =========================
+subgraph AGENT["Agentic Layer"]
+    Decision[Decide Action (LLM)]
+    ToolCall[Tool: Vector Search]
+    GenerateAnswer[Generate Answer (LLM)]
+    Reflection[Self Reflection (LLM)]
+end
+
+Agent --> Decision
+Decision -->|search| ToolCall
+Decision -->|answer| GenerateAnswer
+
+ToolCall --> Query
+RetrievedChunks --> GenerateAnswer
+
+GenerateAnswer --> Reflection
+
+%% =========================
+%% LLM SERVICE
+%% =========================
+subgraph LLM_LAYER["LLM Service"]
+    OpenAI[OpenAI API]
+end
+
+Decision --> OpenAI
+GenerateAnswer --> OpenAI
+Reflection --> OpenAI
+
+%% =========================
+%% OUTPUT
+%% =========================
+Reflection --> Output[Final Answer]
+Output --> User
